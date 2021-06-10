@@ -1,8 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[1]:
-
 
 import pandas as pd
 import numpy as np
@@ -28,38 +23,7 @@ import time
 from sklearn.model_selection import StratifiedKFold
 
 class AuxTensor():
-    def f1(self, y_true, y_pred):
-        def recall(y_true, y_pred):
-            """Recall metric.
-
-            Only computes a batch-wise average of recall.
-
-            Computes the recall, a metric for multi-label classification of
-            how many relevant items are selected.
-            """
-            true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
-            possible_positives = K.sum(K.round(K.clip(y_true, 0, 1)))
-            recall = true_positives / (possible_positives + K.epsilon())
-            return recall
-
-        def precision(y_true, y_pred):
-            """Precision metric.
-
-            Only computes a batch-wise average of precision.
-
-            Computes the precision, a metric for multi-label classification of
-            how many selected items are relevant.
-            """
-            true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
-            predicted_positives = K.sum(K.round(K.clip(y_pred, 0, 1)))
-            precision = true_positives / (predicted_positives + K.epsilon())
-            return precision
-        precision = precision(y_true, y_pred)
-        recall = recall(y_true, y_pred)
-        return 2*((precision*recall)/(precision+recall+K.epsilon()))
-
-    def auc(self,y_true, y_pred):
-        return tf.py_func(roc_auc_score, (y_true, y_pred), tf.double)
+    
 
 
     def evaluation_metrics(self,y_test, y_pred, weights_t):
@@ -151,8 +115,40 @@ class AuxTensor():
 
 
     def applyTensor(self,window_size, df):
+        def f1(y_true, y_pred):
+            def recall(y_true, y_pred):
+                """Recall metric.
 
-        X_train, X_test, y_train, y_test = getTimeSeriesWindow(window_size, df)
+                Only computes a batch-wise average of recall.
+
+                Computes the recall, a metric for multi-label classification of
+                how many relevant items are selected.
+                """
+                true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
+                possible_positives = K.sum(K.round(K.clip(y_true, 0, 1)))
+                recall = true_positives / (possible_positives + K.epsilon())
+                return recall
+
+            def precision(y_true, y_pred):
+                """Precision metric.
+
+                Only computes a batch-wise average of precision.
+
+                Computes the precision, a metric for multi-label classification of
+                how many selected items are relevant.
+                """
+                true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
+                predicted_positives = K.sum(K.round(K.clip(y_pred, 0, 1)))
+                precision = true_positives / (predicted_positives + K.epsilon())
+                return precision
+            precision = precision(y_true, y_pred)
+            recall = recall(y_true, y_pred)
+            return 2*((precision*recall)/(precision+recall+K.epsilon()))
+
+        def auc(y_true, y_pred):
+            return tf.py_function(roc_auc_score, (y_true, y_pred), tf.double)
+
+        X_train, X_test, y_train, y_test = self.getTimeSeriesWindow(self,window_size, df)
     
         print("computing weights...")
         
@@ -188,9 +184,10 @@ class AuxTensor():
             weights_train = weights[train_indices]
             weights_val = weights[val_indices]
 
-            model = None
-            model = make_GRU((xtrain.shape[1], xtrain.shape[2]), 2)
+            #model = None
+            model = self.make_GRU(self,(xtrain.shape[1], xtrain.shape[2]), 2)
             model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['acc', auc, f1])
+            #model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['acc'])
 
             history = model.fit(xtrain, ytrain, validation_data=(xval, yval, weights_val), epochs=set_number_of_epochs, batch_size=set_batch_size, sample_weight=weights_train)
 
@@ -211,4 +208,6 @@ class AuxTensor():
         print("... DONE!")
         
         return [lastModel , history_general, X_test, y_test, time_in_seconds]
+
+      
 

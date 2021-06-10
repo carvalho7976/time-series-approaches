@@ -49,7 +49,7 @@ df.drop(columns=['class_frequency', 'number_of_changes', 'release', 'Name', 'Kin
 listResults = {} 
 for i in [2, 3, 4, 5, 6]:
     print("window_size: "+str(i))
-    listResults[i] = at.applyTensor(i, df)
+    listResults[i] = at.applyTensor(at,i, df)
     print("... DONE!")
 
 for i in [2, 3, 4, 5, 6]:
