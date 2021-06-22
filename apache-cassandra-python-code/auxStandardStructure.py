@@ -35,9 +35,6 @@ import operator
 from sklearn.model_selection import StratifiedKFold
 
 
-# In[2]:
-
-
 def generateStandardTimeSeriesStructure(all_releases_df, ws):
  
     print("Generating a new dataframe without containing the last release...")

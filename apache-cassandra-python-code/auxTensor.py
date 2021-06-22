@@ -78,7 +78,7 @@ class AuxTensor():
                     timeseries_labels.append(class_sequence.loc[row + i, 'will_change'])
                     timeseries_list.append(window)
         
-
+    
         timeseries_tensor = np.array(timeseries_list)
 
         timeseries_tensor = timeseries_tensor.transpose((0,2,1))
@@ -163,10 +163,6 @@ class AuxTensor():
         print("... DONE!")
         
         print("Executing algorithm...")
-        
-    
-        
-        
         lastModels = {}
         history_general = {}
         val_history_general = {}
